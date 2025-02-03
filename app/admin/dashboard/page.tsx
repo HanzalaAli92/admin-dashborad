@@ -1,5 +1,3 @@
-
-
 "use client";
 
 import React, { useEffect, useState } from "react";
@@ -8,6 +6,7 @@ import Image from "next/image";
 import { urlFor } from "@/sanity/lib/image";
 import Swal from "sweetalert2";
 import ProtectedRoute from "@/app/components/ProtectedRoute";
+import { FaBox, FaShippingFast, FaCheckCircle, FaClock } from "react-icons/fa";
 
 interface Order {
   _id: string;
@@ -112,31 +111,56 @@ export default function AdminDashboard() {
 
   return (
     <ProtectedRoute>
-      <div className="flex flex-col h-screen bg-gray-100">
-        {/* Navbar */}
-        <nav className="bg-red-600 text-white p-4 shadow-lg flex justify-between">
-          <h2 className="text-2xl font-bold">Admin Dashboard</h2>
-          <div className="flex space-x-4">
-            {["All", "pending", "dispatch", "success"].map((status) => (
-              <button
-                key={status}
-                className={`px-4 py-2 rounded-lg transition-all ${
-                  filter === status ? "bg-white text-red-600 font-bold" : "text-white"
-                }`}
-                onClick={() => setFilter(status)}
-              >
-                {status.charAt(0).toUpperCase() + status.slice(1)}
-              </button>
-            ))}
-          </div>
-        </nav>
+      <div className="flex h-screen bg-gray-100">
+        {/* Sidebar */}
+        <aside className="w-64 bg-white shadow-lg p-5">
+          <h2 className="text-xl font-bold text-gray-800">Admin Dashboard</h2>
+          <ul className="mt-4 space-y-2">
+            <li className="p-2 bg-blue-500 text-white rounded-lg">Orders</li>
+            <li className="p-2 hover:bg-gray-200 rounded-lg cursor-pointer">Customers</li>
+            <li className="p-2 hover:bg-gray-200 rounded-lg cursor-pointer">Reports</li>
+          </ul>
+        </aside>
 
-        {/* Orders Table */}
-        <div className="flex-1 p-6 overflow-y-auto">
-          <h2 className="text-2xl font-bold mb-4 text-center">Orders</h2>
-          <div className="overflow-x-auto bg-white shadow-md rounded-lg">
+        {/* Main Content */}
+        <div className="flex-1 p-6">
+          {/* Stats Cards */}
+          <div className="grid grid-cols-4 gap-4 mb-6">
+            <div className="bg-white p-4 rounded-lg shadow-md flex items-center space-x-4">
+              <FaBox className="text-blue-500 text-2xl" />
+              <div>
+                <h3 className="text-lg font-semibold">Total Orders</h3>
+                <p className="text-gray-600">{orders.length}</p>
+              </div>
+            </div>
+            <div className="bg-white p-4 rounded-lg shadow-md flex items-center space-x-4">
+              <FaClock className="text-yellow-500 text-2xl" />
+              <div>
+                <h3 className="text-lg font-semibold">Pending</h3>
+                <p className="text-gray-600">{filteredOrders.filter((order) => order.status === "pending").length}</p>
+              </div>
+            </div>
+            <div className="bg-white p-4 rounded-lg shadow-md flex items-center space-x-4">
+              <FaShippingFast className="text-blue-500 text-2xl" />
+              <div>
+                <h3 className="text-lg font-semibold">Dispatched</h3>
+                <p className="text-gray-600">{filteredOrders.filter((order) => order.status === "dispatch").length}</p>
+              </div>
+            </div>
+            <div className="bg-white p-4 rounded-lg shadow-md flex items-center space-x-4">
+              <FaCheckCircle className="text-green-500 text-2xl" />
+              <div>
+                <h3 className="text-lg font-semibold">Completed</h3>
+                <p className="text-gray-600">{filteredOrders.filter((order) => order.status === "success").length}</p>
+              </div>
+            </div>
+          </div>
+
+          {/* Orders Table */}
+          <div className="overflow-x-auto bg-white shadow-md rounded-lg p-6">
+            <h2 className="text-2xl font-bold mb-4">Orders</h2>
             <table className="min-w-full divide-y divide-gray-200 text-sm lg:text-base">
-              <thead className="bg-gray-50 text-red-600">
+              <thead className="bg-gray-50 text-blue-600">
                 <tr>
                   <th>ID</th>
                   <th>Customer</th>
@@ -147,14 +171,15 @@ export default function AdminDashboard() {
                   <th>Action</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-200">
+              <tbody className="divide-y divide-gray-200 ">
                 {filteredOrders.map((order) => (
                   <React.Fragment key={order._id}>
                     <tr
-                      className="cursor-pointer hover:bg-red-100 transition-all "
+                      className="cursor-pointer hover:bg-red-100 transition-all text-center pt-7"
                       onClick={() => toggleOrderDetails(order._id)}
                     >
-                      <td>{order._id}</td>
+                     
+                      <td >{order._id}</td>
                       <td>{order.firstName} {order.lastName}</td>
                       <td>{order.address}</td>
                       <td>{new Date(order.orderDate).toLocaleDateString()}</td>
@@ -170,13 +195,13 @@ export default function AdminDashboard() {
                           <option value="success">Completed</option>
                         </select>
                       </td>
-                      <td className="px-6 py-4">
+                      <td>
                         <button
                           onClick={(e) => {
                             e.stopPropagation();
                             handleDelete(order._id);
                           }}
-                          className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-700 transition"
+                          className="bg-blue-500 text-white px-3 py-1 rounded hover:bg-red-700 transition"
                         >
                           Delete
                         </button>
@@ -184,7 +209,7 @@ export default function AdminDashboard() {
                     </tr>
                     {selectedOrderId === order._id && (
                       <tr>
-                        <td colSpan={7} className="bg-gray-50 p-4 transition-all animate-fadeIn">
+                        <td colSpan={7} className="bg-gray-50 p-4">
                           <h3 className="font-bold">Order Details</h3>
                           <p><strong>Phone:</strong> {order.phone}</p>
                           <p><strong>Email:</strong> {order.email}</p>
