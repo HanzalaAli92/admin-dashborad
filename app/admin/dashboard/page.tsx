@@ -27,7 +27,7 @@ interface Order {
 export default function AdminDashboard() {
   const [orders, setOrders] = useState<Order[]>([]);
   const [selectedOrderId, setSelectedOrderId] = useState<string | null>(null);
-  const [filter, setFilter] = useState("All");
+  const [filter] = useState("All");
 
   useEffect(() => {
     client
